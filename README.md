@@ -14,77 +14,57 @@
 ### Submitted to
 
 **Dr. Kanwal Yousaf**
+# GapFinder
+
+**LLM-Based Agent for Automated Research Gap Identification** | Groq Llama 3 + Semantic Scholar
 
 ---
 
-# 📋 Project Overview
+## What is GapFinder?
 
-**GapFinder** is a smart **task-oriented AI agent** that automatically identifies research gaps from scientific literature.
-
-You simply enter a research topic in natural language, and the system:
-
-* Retrieves relevant academic papers using real APIs
-* Analyzes each paper using Large Language Models (Gemini)
-* Performs cross-paper synthesis using Chain-of-Thought
-* Ranks the gaps using **Gap Priority Score (GPS)**
-* Generates a professional, well-formatted research report
-
-This is the **complete working implementation** of the Research Gap Identification Assistant proposed in **Assignment-1**.
+GapFinder automatically finds research gaps (unsolved problems) from academic papers. Enter a topic → get a ranked report of research gaps in 3-5 minutes.
 
 ---
 
-# ✨ Key Features
+## How It Works
 
-* Real-time paper retrieval from Semantic Scholar and arXiv
-* Multi-agent architecture with 6 specialized agents
-* Structured JSON analysis of paper abstracts
-* Cross-document gap synthesis
-* Intelligent Gap Priority Score (GPS) ranking
-* Professional Markdown and HTML report generation
-* Robust fallback mechanisms when APIs are slow or unavailable
+```
+User Input → Generate Queries → Fetch Papers → Analyze Each Paper → Find Patterns → Rank Gaps → Report
+```
 
----
-
-# 🛠 Technology Stack
-
-| Component            | Technology                                         |
-| -------------------- | -------------------------------------------------- |
-| Programming Language | Python 3                                           |
-| Primary LLM          | Google Gemini 1.5 Flash                            |
-| Fallback LLM         | Groq Llama-3.3                                     |
-| APIs                 | Semantic Scholar API, arXiv API                    |
-| Libraries            | requests, google-generativeai, python-dotenv, etc. |
+| Step | Module | What It Does |
+|------|--------|---------------|
+| 1 | query_formulator.py | Converts topic → search queries |
+| 2 | paper_retriever.py | Fetches 20 papers from Semantic Scholar |
+| 3 | per_paper_analyzer.py | Extracts methods, limitations, future work |
+| 4 | synthesizer.py | Finds cross-paper patterns (Chain-of-Thought) |
+| 5 | gps_scorer.py | Ranks gaps using GPS formula |
+| 6 | report_generator.py | Creates GapFinder_Report.md |
 
 ---
 
-# 🚀 Installation & Setup
+## Setup (5 Minutes)
 
-## 1. Clone the Repository
+### 1. Prerequisites
+- Python 3.10+
+- Groq API Key (free from [console.groq.com](https://console.groq.com))
+
+### 2. Install
 
 ```bash
 git clone https://github.com/yourusername/GapFinder.git
 cd GapFinder
-```
-
-## 2. Install Dependencies
-
-```bash
 pip install -r requirements.txt
 ```
 
-## 3. Add Gemini API Key
+### 3. Set API Key
 
-Create a new file named `.env` in the main project folder and add:
-
-```env
-GEMINI_API_KEY=your_actual_gemini_api_key_here
+Create `.env` file:
+```
+GROQ_API_KEY=your_key_here
 ```
 
-Get a free API key from:
-
-https://aistudio.google.com/app/apikey
-
-## 4. Run the Tool
+### 4. Run
 
 ```bash
 python main.py
@@ -92,66 +72,103 @@ python main.py
 
 ---
 
-# 📁 Project Structure
+## Usage Example
 
-```text
+```bash
+$ python main.py
+
+Enter research topic: graph neural networks for drug discovery
+
+[1/6] Generating queries... Done
+[2/6] Fetching papers... 20 papers found
+[3/6] Analyzing papers... Done
+[4/6] Finding patterns... 14 gaps found
+[5/6] Ranking gaps... Done
+[6/6] Generating report... Done
+
+✅ Report saved: GapFinder_Report.md
+```
+
+### Sample Output (Console)
+
+```
+TOP RESEARCH GAPS:
+1. Changes in data sources pose risks to data quality (Score: 0.15)
+2. Possible limitations of ML performance (Score: 0.15)
+3. Dataset-bias of models used (Score: 0.075)
+```
+
+### Output File
+
+`GapFinder_Report.md` contains: Executive Summary, Top Ranked Gaps with GPS Scores, Under-explored Methods, Dataset Limitations, Future Directions.
+
+---
+
+## GPS Formula
+
+```
+GPS = (Frequency / Total Papers) × Recency Weight × Specificity Score
+```
+
+| Factor | Range | Description |
+|--------|-------|-------------|
+| Frequency | 0-1 | Papers mentioning this gap |
+| Recency | 1.0-1.5 | Higher for recent papers (last 2 years) |
+| Specificity | 1-3 | Higher for technically specific gaps |
+
+Higher GPS = Higher priority gap.
+
+---
+
+## Project Structure
+
+```
 GapFinder/
-│
-├── main.py                          # Main program
-├── query_formulator.py
-├── paper_retriever.py
-├── per_paper_analyzer.py
-├── synthesizer.py
-├── gps_scorer.py
-├── report_generator.py
-├── arxiv_gapfinder.py
-├── final.py
-├── requirements.txt
-├── FINAL_REPORT.md
-├── GapFinder_arXiv_Report.md
-├── GapFinder_Dynamic_Report.html
-└── README.md
+├── main.py                 # Run this
+├── query_formulator.py     # Step 1
+├── paper_retriever.py      # Step 2
+├── per_paper_analyzer.py   # Step 3
+├── synthesizer.py          # Step 4
+├── gps_scorer.py           # Step 5
+├── report_generator.py     # Step 6
+├── requirements.txt        # Dependencies
+├── .env                    # API key (create)
+└── GapFinder_Report.md     # Output
 ```
 
 ---
 
-# 📊 Sample Reports
+## Requirements
 
-### FINAL_REPORT.md
-
-Generated using Groq LLM.
-
-### GapFinder_arXiv_Report.md
-
-Generated using arXiv API.
-
-### GapFinder_Dynamic_Report.html
-
-Beautiful HTML version of the generated report.
+```
+groq>=0.9.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+```
 
 ---
 
-# 📄 Assignment Documents
+## Limitations
 
-* Full **Assignment-2 Research Paper (PDF)** is included.
-* All source code files and generated reports are provided.
-* This project fully implements the proposal from **Assignment-1**.
+- Analyzes **abstracts only** (not full text)
+- Works best with **specific topics**
+- Free-tier Llama 3 produces **broader gaps** than paid models
 
----
 
-# 🛠 Future Work
 
-* Support for full-text PDF analysis
-* Web-based user interface
-* Integration with additional academic databases
-* Citation network analysis for improved research gap validation
+## `requirements.txt`
 
----
-
-# Conclusion
-
-GapFinder demonstrates how modern AI technologies can automate the labor-intensive process of research gap identification. By combining academic paper retrieval, Large Language Models, multi-agent reasoning, and intelligent ranking mechanisms, the system assists researchers in discovering meaningful and impactful research opportunities more efficiently.
+```txt
+groq>=0.9.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+```
 
 ---
 
-# Thank You!
+## `.env` (user creates)
+
+```
+GROQ_API_KEY=your_key_here
+```
+
